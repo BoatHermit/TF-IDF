@@ -96,6 +96,16 @@ public class Main {
     }
 
     /**
+     * 计算目标文档的TF_IDF
+     * @param doc 文档
+     * @return 包含word与TF_IDF值的Map
+     */
+    public Map<String, Double> calTF_IDF(Document doc) {
+        doc.calIF_IDF();
+        return doc.getTF_IDFMap();
+    }
+
+    /**
      * 计算两篇文档之间相似度
      * @param doc1 文档1
      * @param doc2 文档2
@@ -103,8 +113,8 @@ public class Main {
      */
     public double calSimilarity(Document doc1, Document doc2) {
         // 加入未重叠词语
-        Map<String, Double> IF_IDFMap1 = new HashMap<>(doc1.IF_IDFMap);
-        Map<String, Double> IF_IDFMap2 = new HashMap<>(doc2.IF_IDFMap);
+        Map<String, Double> IF_IDFMap1 = new HashMap<>(doc1.TF_IDFMap);
+        Map<String, Double> IF_IDFMap2 = new HashMap<>(doc2.TF_IDFMap);
         for(String term : IF_IDFMap1.keySet()) {
             IF_IDFMap2.putIfAbsent(term, 0d);
         }
