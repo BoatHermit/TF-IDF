@@ -23,6 +23,7 @@ public class Document {
 
     Map<String, Integer> termMap = new HashMap<>();
     Map<String, Double> TFMap = new HashMap<>();
+    Map<String, Double> IDFMap = new HashMap<>();
     Map<String, Double> IF_IDFMap = new HashMap<>();
 
 

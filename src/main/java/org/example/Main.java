@@ -53,6 +53,7 @@ public class Main {
         FileReader fileReader = new FileReader();
         externalFiles = fileReader.readExternalFile(external);
         internalFiles = fileReader.readInternalFile(internal);
+        docNum = externalFiles.size() + internalFiles.size();
     }
 
     /**
@@ -62,6 +63,36 @@ public class Main {
         Segmentation segmentation = new Segmentation();
         externalRegulations = segmentation.splitExternal(externalFiles);
         internalRegulations = segmentation.splitInternal(internalFiles);
+    }
+
+    /**
+     * 计算目标文档的IDF
+     * @param doc 文档
+     */
+    public void calIDF(Document doc) {
+        Map<String, Double> IDFMap = new HashMap<>();
+        for (Term term : doc.terms) {
+            int docNumHasTerm = 0;
+            String word = term.toString();
+            if (termDocMap.containsKey(word)) {
+                docNumHasTerm = termDocMap.get(word);
+            } else {
+                for (Document d : externalRegulations) {
+                    if (d.terms.contains(term)) {
+                        docNumHasTerm++;
+                    }
+                }
+                for (Document d : internalRegulations) {
+                    if (d.terms.contains(term)) {
+                        docNumHasTerm++;
+                    }
+                }
+                termDocMap.put(word, docNumHasTerm);
+            }
+            double idf = Math.log((double) docNum / docNumHasTerm);
+            IDFMap.put(word, idf);
+        }
+        doc.setIDFMap(IDFMap);
     }
 
     /**
