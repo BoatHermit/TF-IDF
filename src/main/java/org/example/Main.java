@@ -6,10 +6,7 @@ import org.example.utils.FileReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Main {
@@ -35,7 +32,13 @@ public class Main {
     /**
      * 储存相似度
      */
-    Map<Document, Map<Document, Integer>> similarities = new HashMap<>();
+    Map<Document, Map<Document, Double>> similarities = new HashMap<>();
+
+    /**
+     * 储存相似度降序内规列表
+     */
+    Map<Document, List<Document>> descDocLists = new HashMap<>();
+
     int docNum;
 
     /**
@@ -62,20 +65,74 @@ public class Main {
     }
 
     /**
-     * 计算相似度
+     * 计算两篇文档之间相似度
      * @param doc1 文档1
      * @param doc2 文档2
      * @return 相似度
      */
-    public int calSimilarity(Document doc1, Document doc2) {
-        return 0;
+    public double calSimilarity(Document doc1, Document doc2) {
+        // 加入未重叠词语
+        Map<String, Double> IF_IDFMap1 = new HashMap<>(doc1.IF_IDFMap);
+        Map<String, Double> IF_IDFMap2 = new HashMap<>(doc2.IF_IDFMap);
+        for(String term : IF_IDFMap1.keySet()) {
+            IF_IDFMap2.putIfAbsent(term, 0d);
+        }
+        for(String term : IF_IDFMap2.keySet()) {
+            IF_IDFMap1.putIfAbsent(term, 0d);
+        }
+
+        // 计算
+        double numerator = 0d, denominator1 = 0d, denominator2 = 0d;
+        for(String term : IF_IDFMap1.keySet()) {
+            double wk1 = IF_IDFMap1.get(term);
+            double wk2 = IF_IDFMap2.get(term);
+            numerator += wk1 * wk2;
+
+            denominator1 += wk1 * wk1;
+            denominator2 += wk2 * wk2;
+        }
+        double denominator = Math.sqrt(denominator1 * denominator2);
+        return numerator / denominator;
     }
 
     /**
-     * 计算所有相似度
+     * 获得一篇外规和所有内规的相似度降序列表
      */
-    public void calculate() {
+    private List<Document> getSimilarityList(Document external, List<Document> internalList) {
+        Map<Document, Double> sims = new HashMap<>();
+        for (Document in : internalList) {
+            sims.put(in, calSimilarity(external, in));
+        }
+        similarities.put(external, sims);
+        PriorityQueue<Document> descList = new PriorityQueue<>(new Comparator<Document>() {
+            @Override
+            public int compare(Document o1, Document o2) {
+                if(sims.get(o1) - sims.get(o2) < 0) return 1;
+                else if(sims.get(o1) - sims.get(o2) > 0) return -1;
+                return 0;
+            }
+        });
+        descList.addAll(internalList);
+        List<Document> res = new ArrayList<>(descList);
+        return res;
+    }
 
+    /**
+     * 计算一篇外规的所有相似度
+     */
+    public void calculateExternalRegulationSimilarities(Document external) {
+        if(descDocLists.get(external) == null) {
+            descDocLists.put(external, getSimilarityList(external, internalRegulations));
+        }
+    }
+
+    /**
+     * 计算所有外规的所有相似度
+     */
+    public void calculateAllSimilarities() {
+        for(Document external : externalRegulations) {
+            calculateExternalRegulationSimilarities(external);
+        }
     }
 
     /**
