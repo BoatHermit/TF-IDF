@@ -24,7 +24,7 @@ public class Document {
     Map<String, Integer> termMap = new HashMap<>();
     Map<String, Double> TFMap = new HashMap<>();
     Map<String, Double> IDFMap = new HashMap<>();
-    Map<String, Double> IF_IDFMap = new HashMap<>();
+    Map<String, Double> TF_IDFMap = new HashMap<>();
 
 
     /**
@@ -36,10 +36,18 @@ public class Document {
 
     /**
      * 计算IF-IDF
-     * @return IF-IDF
      */
-    public int calIF_IDF() {
-        return 0;
+    public void calIF_IDF() {
+        for (String word : TFMap.keySet()) {
+            if (IDFMap.containsKey(word)) {
+                Double valueTF = TFMap.get(word);
+                Double valueIDF = IDFMap.get(word);
+                TF_IDFMap.put(word, valueIDF * valueTF);
+            } else {
+                System.err.println("This word exist in TFMap but don't exist in IDFMap:" + word);
+            }
+        }
+        assert TFMap.size() == TF_IDFMap.size() : "size of TFMap is not equal TF_IDFMap.size";
     }
 
     /**
