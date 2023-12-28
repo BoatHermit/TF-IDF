@@ -62,34 +62,42 @@ public class DocumentsServiceImpl implements DocumentsService {
         docNum = externalRegulations.size() + internalRegulations.size();
 
         for (Document d : externalRegulations) {
+            Set<String> words = new HashSet<>();
             for (Term t : d.getTerms()) {
                 String word = t.toString();
-                if (termDocMap.containsKey(word)) {
-                    Integer i = termDocMap.get(word) + 1;
-                    termDocMap.put(word, i);
-                } else {
-                    termDocMap.put(word, 0);
+                if (!words.contains(word)) {
+                    words.add(word);
+                    if (termDocMap.containsKey(word)) {
+                        Integer i = termDocMap.get(word) + 1;
+                        termDocMap.put(word, i);
+                    } else {
+                        termDocMap.put(word, 1);
+                    }
                 }
             }
         }
         for (Document d : internalRegulations) {
+            Set<String> words = new HashSet<>();
             for (Term t : d.getTerms()) {
                 String word = t.toString();
-                if (termDocMap.containsKey(word)) {
-                    Integer i = termDocMap.get(word) + 1;
-                    termDocMap.put(word, i);
-                } else {
-                    termDocMap.put(word, 0);
+                if (!words.contains(word)) {
+                    words.add(word);
+                    if (termDocMap.containsKey(word)) {
+                        Integer i = termDocMap.get(word) + 1;
+                        termDocMap.put(word, i);
+                    } else {
+                        termDocMap.put(word, 1);
+                    }
                 }
             }
         }
 
-        for (Document d : internalRegulations) {
+        for (Document d : externalRegulations) {
             calTF(d, true);
             calIDF(d);
             calTF_IDF(d);
         }
-        for (Document d : externalRegulations) {
+        for (Document d : internalRegulations) {
             calTF(d, true);
             calIDF(d);
             calTF_IDF(d);
@@ -227,17 +235,17 @@ public class DocumentsServiceImpl implements DocumentsService {
         double numerator = 0d, denominator1 = 0d, denominator2 = 0d;
         for(String term : IF_IDFMap1.keySet()) {
             double wk1 = IF_IDFMap1.get(term);
-            wk1 = DoubleUtil.shortDouble(wk1, 5);
+//            wk1 = DoubleUtil.shortDouble(wk1, 5);
             double wk2 = IF_IDFMap2.get(term);
-            wk2 = DoubleUtil.shortDouble(wk2, 5);
+//            wk2 = DoubleUtil.shortDouble(wk2, 5);
 
             numerator += wk1 * wk2;
-            numerator = DoubleUtil.shortDouble(numerator, 5);
+//            numerator = DoubleUtil.shortDouble(numerator, 5);
 
             denominator1 += wk1 * wk1;
-            denominator1 = DoubleUtil.shortDouble(denominator1, 5);
+//            denominator1 = DoubleUtil.shortDouble(denominator1, 5);
             denominator2 += wk2 * wk2;
-            denominator2 = DoubleUtil.shortDouble(denominator2, 5);
+//            denominator2 = DoubleUtil.shortDouble(denominator2, 5);
         }
         double denominator = Math.sqrt(denominator1 * denominator2);
         return numerator / denominator;
