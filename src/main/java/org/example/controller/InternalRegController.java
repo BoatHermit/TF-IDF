@@ -24,7 +24,7 @@ public class InternalRegController {
 
     @GetMapping("/all")
     public Result getAll() {
-        return Result.success(internalRegService.findAll());
+        return Result.success(internalRegService.findSimpleAll());
     }
 
     @GetMapping("/id")

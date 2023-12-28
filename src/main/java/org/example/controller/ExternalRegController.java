@@ -24,7 +24,7 @@ public class ExternalRegController {
 
     @GetMapping("/all")
     public Result getAll() {
-        return Result.success(externalRegService.findAll());
+        return Result.success(externalRegService.findSimpleAll());
     }
 
     @GetMapping("/id")

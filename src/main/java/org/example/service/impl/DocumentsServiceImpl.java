@@ -1,10 +1,7 @@
 package org.example.service.impl;
 
 import com.hankcs.hanlp.seg.common.Term;
-import org.example.model.vo.Document;
-import org.example.model.vo.ExternalFile;
-import org.example.model.vo.InternalFile;
-import org.example.model.vo.InternalSFile;
+import org.example.model.vo.*;
 import org.example.service.DocumentsService;
 import org.example.service.ExternalRegService;
 import org.example.service.InternalRegService;
@@ -129,7 +126,7 @@ public class DocumentsServiceImpl implements DocumentsService {
     }
 
     @Override
-    public Map<InternalSFile, Double> getSimilarityById(Long id) {
+    public List<SimilarityParam> getSimilarityById(Long id) {
         if (getExternalById(id) == null) {
             return null;
         }
@@ -251,14 +248,15 @@ public class DocumentsServiceImpl implements DocumentsService {
         return numerator / denominator;
     }
 
-    public Map<InternalSFile, Double> getSimilarity(Document external) {
-        Map<InternalSFile, Double> sims = new HashMap<>();
+    public List<SimilarityParam> getSimilarity(Document external) {
+        List<SimilarityParam> sims = new ArrayList<>();
         for (Document in : internalRegulations) {
-            InternalSFile inSFile = new InternalSFile();
-            inSFile.setId(in.getId());
-            inSFile.setTitle(in.getTitle());
-            inSFile.setDepartment(in.getDepartment());
-            sims.put(inSFile, calSimilarity(external, in));
+            SimilarityParam similarityParam = new SimilarityParam();
+            similarityParam.setId(in.getId());
+            similarityParam.setTitle(in.getTitle());
+            similarityParam.setDepartment(in.getDepartment());
+            similarityParam.setSimilarity(calSimilarity(external, in));
+            sims.add(similarityParam);
         }
         return sims;
     }
