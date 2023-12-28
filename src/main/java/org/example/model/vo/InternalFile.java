@@ -1,4 +1,4 @@
-package org.example;
+package org.example.model.vo;
 
 import lombok.Data;
 
@@ -7,6 +7,8 @@ import lombok.Data;
  */
 @Data
 public class InternalFile {
+
+    Long id;
 
     //文件名称
     String name;
