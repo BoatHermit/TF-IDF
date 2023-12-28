@@ -2,6 +2,7 @@ package org.example.service;
 
 
 import org.example.model.vo.Document;
+import org.example.model.vo.InternalSFile;
 
 import java.util.List;
 import java.util.Map;
@@ -21,5 +22,5 @@ public interface DocumentsService {
      *
      * @param id 外规id
      */
-    Map<Document, Double> getSimilarityById(Long id);
+    Map<InternalSFile, Double> getSimilarityById(Long id);
 }

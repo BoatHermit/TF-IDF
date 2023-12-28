@@ -14,7 +14,7 @@ public class Document {
     boolean isInternal;
     Long id;
     //文件名称
-    String text;
+    String title;
     //所属部门（内规）
     String department;
     //分词列表

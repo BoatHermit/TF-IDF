@@ -3,17 +3,13 @@ package org.example.model.vo;
 import lombok.Data;
 
 /**
- * 外规文件类
+ * @author Yin Zihang
  */
 @Data
-public class ExternalFile {
+public class ExternalSFile {
 
     Long id;
 
     //文件名称
     String title;
-
-    //文件内容
-    String content;
-
 }

@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Yin Zihang
- * @since 2023/12/28 14:24
  */
 @RestController
-@RequestMapping("/document")
+@RequestMapping
 public class DocumentController {
 
     DocumentsService documentsService;
@@ -22,9 +21,8 @@ public class DocumentController {
         this.documentsService = documentsService;
     }
 
-    @GetMapping
-    public Result getSimilarityBy(Long id) {
+    @GetMapping("/getSimilarityById")
+    public Result getSimilarityById(Long id) {
         return Result.success(documentsService.getSimilarityById(id));
-
     }
 }

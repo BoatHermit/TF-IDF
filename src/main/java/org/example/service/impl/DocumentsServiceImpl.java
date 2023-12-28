@@ -4,6 +4,7 @@ import com.hankcs.hanlp.seg.common.Term;
 import org.example.model.vo.Document;
 import org.example.model.vo.ExternalFile;
 import org.example.model.vo.InternalFile;
+import org.example.model.vo.InternalSFile;
 import org.example.service.DocumentsService;
 import org.example.service.ExternalRegService;
 import org.example.service.InternalRegService;
@@ -88,7 +89,7 @@ public class DocumentsServiceImpl implements DocumentsService {
     }
 
     @Override
-    public Map<Document, Double> getSimilarityById(Long id) {
+    public Map<InternalSFile, Double> getSimilarityById(Long id) {
         if (getExternalById(id) == null) {
             return null;
         }
@@ -204,10 +205,14 @@ public class DocumentsServiceImpl implements DocumentsService {
         return numerator / denominator;
     }
 
-    public Map<Document, Double> getSimilarity(Document external) {
-        Map<Document, Double> sims = new HashMap<>();
+    public Map<InternalSFile, Double> getSimilarity(Document external) {
+        Map<InternalSFile, Double> sims = new HashMap<>();
         for (Document in : internalRegulations) {
-            sims.put(in, calSimilarity(external, in));
+            InternalSFile inSFile = new InternalSFile();
+            inSFile.setId(in.getId());
+            inSFile.setTitle(in.getTitle());
+            inSFile.setDepartment(in.getDepartment());
+            sims.put(inSFile, calSimilarity(external, in));
         }
         return sims;
     }

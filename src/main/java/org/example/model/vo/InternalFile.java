@@ -11,7 +11,7 @@ public class InternalFile {
     Long id;
 
     //文件名称
-    String name;
+    String title;
 
     //文件内容
     String content;

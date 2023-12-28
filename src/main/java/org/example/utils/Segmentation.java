@@ -26,7 +26,7 @@ public class Segmentation {
             Document document = new Document();
             document.setId(file.getId());
             document.setInternal(false);
-            document.setText(file.getName());
+            document.setTitle(file.getTitle());
             document.setDepartment(null);
             document.setTerms(NLPTokenizer.segment(file.getContent()));
             externalRegulations.add(document);
@@ -47,7 +47,7 @@ public class Segmentation {
             Document document = new Document();
             document.setId(file.getId());
             document.setInternal(true);
-            document.setText(file.getName());
+            document.setTitle(file.getTitle());
             document.setDepartment(file.getDepartment());
             document.setTerms(NLPTokenizer.segment(file.getContent()));
             internalRegulations.add(document);
