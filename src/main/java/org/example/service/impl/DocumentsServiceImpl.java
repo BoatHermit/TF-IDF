@@ -8,6 +8,7 @@ import org.example.model.vo.InternalSFile;
 import org.example.service.DocumentsService;
 import org.example.service.ExternalRegService;
 import org.example.service.InternalRegService;
+import org.example.utils.DoubleUtil;
 import org.example.utils.Segmentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,19 +52,55 @@ public class DocumentsServiceImpl implements DocumentsService {
     DocumentsServiceImpl(ExternalRegService externalRegService, InternalRegService internalRegService) {
         this.externalRegService = externalRegService;
         this.internalRegService = internalRegService;
-        findAllInternal();
+        renewDoc();
+    }
+
+    public void renewDoc() {
         findAllExternal();
+        findAllInternal();
+
+        docNum = externalRegulations.size() + internalRegulations.size();
+
+        for (Document d : externalRegulations) {
+            for (Term t : d.getTerms()) {
+                String word = t.toString();
+                if (termDocMap.containsKey(word)) {
+                    Integer i = termDocMap.get(word) + 1;
+                    termDocMap.put(word, i);
+                } else {
+                    termDocMap.put(word, 0);
+                }
+            }
+        }
+        for (Document d : internalRegulations) {
+            for (Term t : d.getTerms()) {
+                String word = t.toString();
+                if (termDocMap.containsKey(word)) {
+                    Integer i = termDocMap.get(word) + 1;
+                    termDocMap.put(word, i);
+                } else {
+                    termDocMap.put(word, 0);
+                }
+            }
+        }
+
+        for (Document d : internalRegulations) {
+            calTF(d, true);
+            calIDF(d);
+            calTF_IDF(d);
+        }
+        for (Document d : externalRegulations) {
+            calTF(d, true);
+            calIDF(d);
+            calTF_IDF(d);
+        }
     }
 
     @Override
     public List<Document> findAllInternal() {
         List<InternalFile> inFiles = internalRegService.findAll();
         internalRegulations = Segmentation.splitInternal(inFiles);
-        for (Document d : internalRegulations) {
-            calTF(d, true);
-            calIDF(d);
-            calTF_IDF(d);
-        }
+
         return internalRegulations;
     }
 
@@ -71,11 +108,6 @@ public class DocumentsServiceImpl implements DocumentsService {
     public List<Document> findAllExternal() {
         List<ExternalFile> exFiles = externalRegService.findAll();
         externalRegulations = Segmentation.splitExternal(exFiles);
-        for (Document d : externalRegulations) {
-            calTF(d, true);
-            calIDF(d);
-            calTF_IDF(d);
-        }
         return externalRegulations;
     }
 
@@ -195,11 +227,17 @@ public class DocumentsServiceImpl implements DocumentsService {
         double numerator = 0d, denominator1 = 0d, denominator2 = 0d;
         for(String term : IF_IDFMap1.keySet()) {
             double wk1 = IF_IDFMap1.get(term);
+            wk1 = DoubleUtil.shortDouble(wk1, 5);
             double wk2 = IF_IDFMap2.get(term);
+            wk2 = DoubleUtil.shortDouble(wk2, 5);
+
             numerator += wk1 * wk2;
+            numerator = DoubleUtil.shortDouble(numerator, 5);
 
             denominator1 += wk1 * wk1;
+            denominator1 = DoubleUtil.shortDouble(denominator1, 5);
             denominator2 += wk2 * wk2;
+            denominator2 = DoubleUtil.shortDouble(denominator2, 5);
         }
         double denominator = Math.sqrt(denominator1 * denominator2);
         return numerator / denominator;
