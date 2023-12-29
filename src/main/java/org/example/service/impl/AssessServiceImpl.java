@@ -3,7 +3,7 @@ package org.example.service.impl;
 import javafx.util.Pair;
 import org.example.dao.ExternalRegMapper;
 import org.example.dao.InternalRegMapper;
-import org.example.dao.TagMapper;
+import org.example.dao.MarkMapper;
 import org.example.model.vo.ExternalSFile;
 import org.example.model.vo.SimilarityParam;
 import org.example.service.AssessService;
@@ -24,7 +24,7 @@ public class AssessServiceImpl implements AssessService {
     @Resource
     InternalRegMapper internalRegMapper;
     @Resource
-    TagMapper tagMapper;
+    MarkMapper markMapper;
 
     @Resource
     ExternalRegService externalRegService;
@@ -34,10 +34,10 @@ public class AssessServiceImpl implements AssessService {
     @Override
     public double getAP() {
         // 合并排序
-        PriorityQueue<Pair<String, SimilarityParam>> queue = new PriorityQueue<>(
-                new Comparator<Pair<String, SimilarityParam>>() {
+        PriorityQueue<Pair<Long, SimilarityParam>> queue = new PriorityQueue<>(
+                new Comparator<Pair<Long, SimilarityParam>>() {
             @Override
-            public int compare(Pair<String, SimilarityParam> o1, Pair<String, SimilarityParam> o2) {
+            public int compare(Pair<Long, SimilarityParam> o1, Pair<Long, SimilarityParam> o2) {
                 double s1 = o1.getValue().getSimilarity();
                 double s2 = o2.getValue().getSimilarity();
                 return Double.compare(s1, s2);
@@ -46,19 +46,18 @@ public class AssessServiceImpl implements AssessService {
 
         for(ExternalSFile externalSFile : externalRegService.findSimpleAll()) {
             List<SimilarityParam> simList = documentsService.getSimilarityById(externalSFile.getId());
-            String exTitle = externalSFile.getTitle();
             for(SimilarityParam simPar : simList) {
-                queue.add(new Pair<>(exTitle, simPar));
+                queue.add(new Pair<>(externalSFile.getId(), simPar));
             }
         }
 
         // 计算AP
         int k = 0, n = 0;
         double res = 0d;
-        for(Pair<String, SimilarityParam> pair : queue) {
+        for(Pair<Long, SimilarityParam> pair : queue) {
             n ++;
-            if(tagMapper.findByExternalTitleAndInternalId(pair.getKey(), pair.getValue().getId())
-                    .getIsMatch() == 1) {
+            if(markMapper.findByExternalIdAndInternalId(pair.getKey(), pair.getValue().getId())
+                    .getRelevance() == 1) {
                 k ++;
             }
             res += ((double) k) / ((double) n);
@@ -79,13 +78,12 @@ public class AssessServiceImpl implements AssessService {
 
     private double getAPById(Long externalId) {
         List<SimilarityParam> simList = documentsService.getSimilarityById(externalId);
-        String exTitle = externalRegMapper.selectById(externalId).getTitle();
         int k = 0, n = 0;
         double res = 0d;
         for(SimilarityParam similarityParam : simList) {
             n ++;
-            if(tagMapper.findByExternalTitleAndInternalId(exTitle, similarityParam.getId())
-                    .getIsMatch() == 1) {
+            if(markMapper.findByExternalIdAndInternalId(externalId, similarityParam.getId())
+                    .getRelevance() == 1) {
                 k ++;
             }
             res += ((double) k) / ((double) n);
