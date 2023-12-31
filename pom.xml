@@ -69,7 +69,11 @@
             <version>3.5.3.1</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>11</version>
+        </dependency>
     </dependencies>
 
     <build>
