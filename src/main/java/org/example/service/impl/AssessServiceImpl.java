@@ -21,10 +21,6 @@ import java.util.PriorityQueue;
 public class AssessServiceImpl implements AssessService {
 
     @Resource
-    ExternalRegMapper externalRegMapper;
-    @Resource
-    InternalRegMapper internalRegMapper;
-    @Resource
     MarkMapper markMapper;
 
     @Resource
