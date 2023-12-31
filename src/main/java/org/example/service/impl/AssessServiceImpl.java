@@ -1,7 +1,5 @@
 package org.example.service.impl;
 
-import org.example.dao.ExternalRegMapper;
-import org.example.dao.InternalRegMapper;
 import org.example.dao.MarkMapper;
 import org.example.model.vo.ExternalSFile;
 import org.example.model.vo.SimilarityParam;
@@ -22,7 +20,6 @@ public class AssessServiceImpl implements AssessService {
 
     @Resource
     MarkMapper markMapper;
-
     @Resource
     ExternalRegService externalRegService;
     @Resource
