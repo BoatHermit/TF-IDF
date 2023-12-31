@@ -1,6 +1,5 @@
 package org.example.service.impl;
 
-import javafx.util.Pair;
 import org.example.dao.ExternalRegMapper;
 import org.example.dao.InternalRegMapper;
 import org.example.dao.MarkMapper;
@@ -13,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 
 @Service
@@ -34,10 +35,10 @@ public class AssessServiceImpl implements AssessService {
     @Override
     public double getAP() {
         // 合并排序
-        PriorityQueue<Pair<Long, SimilarityParam>> queue = new PriorityQueue<>(
-                new Comparator<Pair<Long, SimilarityParam>>() {
+        PriorityQueue<Entry<Long, SimilarityParam>> queue = new PriorityQueue<>(
+                new Comparator<Entry<Long, SimilarityParam>>() {
             @Override
-            public int compare(Pair<Long, SimilarityParam> o1, Pair<Long, SimilarityParam> o2) {
+            public int compare(Entry<Long, SimilarityParam> o1, Entry<Long, SimilarityParam> o2) {
                 double s1 = o1.getValue().getSimilarity();
                 double s2 = o2.getValue().getSimilarity();
                 return Double.compare(s1, s2);
@@ -47,14 +48,17 @@ public class AssessServiceImpl implements AssessService {
         for(ExternalSFile externalSFile : externalRegService.findSimpleAll()) {
             List<SimilarityParam> simList = documentsService.getSimilarityById(externalSFile.getId());
             for(SimilarityParam simPar : simList) {
-                queue.add(new Pair<>(externalSFile.getId(), simPar));
+//                queue.add(new Entry<>(externalSFile.getId(), simPar));
+                HashMap<Long, SimilarityParam> tmp = new HashMap<>();
+                tmp.put(externalSFile.getId(), simPar);
+                for(Entry<Long, SimilarityParam> e : tmp.entrySet()) queue.add(e);
             }
         }
 
         // 计算AP
         int k = 0, n = 0;
         double res = 0d;
-        for(Pair<Long, SimilarityParam> pair : queue) {
+        for(Entry<Long, SimilarityParam> pair : queue) {
             n ++;
             if(markMapper.findByExternalIdAndInternalId(pair.getKey(), pair.getValue().getId())
                     .getRelevance() == 1) {
