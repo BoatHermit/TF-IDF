@@ -23,10 +23,10 @@ public class AssessController {
         return Result.success(AP);
     }
 
-    @GetMapping("/ap")
+    @GetMapping("/map")
     public Result getMAP() {
         if(MAP == null)
             MAP = assessService.getMAP();
-        return Result.success(AP);
+        return Result.success(MAP);
     }
 }
