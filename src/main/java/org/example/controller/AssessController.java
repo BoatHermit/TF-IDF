@@ -27,6 +27,6 @@ public class AssessController {
     public Result getMAP() {
         if(MAP == null)
             MAP = assessService.getMAP();
-        return Result.success(AP);
+        return Result.success(MAP);
     }
 }
