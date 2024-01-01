@@ -23,16 +23,13 @@ public class DocumentsServiceImpl implements DocumentsService {
     List<Document> externalRegulations = new ArrayList<>();
     //处理后的内规文件列表
     List<Document> internalRegulations = new ArrayList<>();
+    //降序列表
+    Map<Long, List<SimilarityParam>> simDescList = new HashMap<>();
 
     /**
      * 储存相似度
      */
     Map<Document, Map<Document, Double>> similarities = new HashMap<>();
-
-    /**
-     * 储存相似度降序内规列表
-     */
-    Map<Document, List<Document>> descDocLists = new HashMap<>();
 
     int docNum;
 
@@ -283,21 +280,23 @@ public class DocumentsServiceImpl implements DocumentsService {
         return res;
     }
 
-    /**
-     * 计算一篇外规的所有相似度
-     */
-    public void calculateExternalRegulationSimilarities(Document external) {
-        if(descDocLists.get(external) == null) {
-            descDocLists.put(external, getSimilarityList(external, internalRegulations));
+    @Override
+    public List<SimilarityParam> getSimilarityListDesc(Long id) {
+        if(simDescList.get(id) == null) {
+            Document ex = getExternalById(id);
+            List<Document> inDesc = getSimilarityList(ex, internalRegulations);
+            List<SimilarityParam> ret = new ArrayList<>();
+            for(Document inDoc : inDesc) {
+                SimilarityParam similarityParam = new SimilarityParam();
+                similarityParam.setId(inDoc.getId());
+                similarityParam.setTitle(inDoc.getTitle());
+                similarityParam.setDepartment(inDoc.getDepartment());
+                similarityParam.setSimilarity(similarities.get(ex).get(inDoc));
+                ret.add(similarityParam);
+            }
+            simDescList.put(id, ret);
+            return ret;
         }
-    }
-
-    /**
-     * 计算所有外规的所有相似度
-     */
-    public void calculateAllSimilarities() {
-        for(Document external : externalRegulations) {
-            calculateExternalRegulationSimilarities(external);
-        }
+        return simDescList.get(id);
     }
 }

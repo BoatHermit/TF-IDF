@@ -9,11 +9,8 @@ import org.example.service.ExternalRegService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.PriorityQueue;
 
 @Service
 public class AssessServiceImpl implements AssessService {
@@ -27,37 +24,39 @@ public class AssessServiceImpl implements AssessService {
 
     @Override
     public double getAP() {
-        // 合并排序
-        PriorityQueue<Entry<Long, SimilarityParam>> queue = new PriorityQueue<>(
-                new Comparator<Entry<Long, SimilarityParam>>() {
+        // 合并
+        Entry<Long, SimilarityParam>[] array = new Entry[52845];
+        int ptr = 0;
+        for(ExternalSFile externalSFile : externalRegService.findSimpleAll()) {
+            List<SimilarityParam> simList = documentsService.getSimilarityListDesc(externalSFile.getId());
+            for(SimilarityParam simPar : simList) {
+                HashMap<Long, SimilarityParam> tmp = new HashMap<>();
+                tmp.put(externalSFile.getId(), simPar);
+                for(Entry<Long, SimilarityParam> e : tmp.entrySet()) array[ptr] = e;
+                ptr ++;
+            }
+        }
+
+        // 排序
+        Arrays.sort(array, new Comparator<Entry<Long, SimilarityParam>>() {
             @Override
             public int compare(Entry<Long, SimilarityParam> o1, Entry<Long, SimilarityParam> o2) {
                 double s1 = o1.getValue().getSimilarity();
                 double s2 = o2.getValue().getSimilarity();
-                return Double.compare(s1, s2);
+                return Double.compare(s2, s1);
             }
         });
-
-        for(ExternalSFile externalSFile : externalRegService.findSimpleAll()) {
-            List<SimilarityParam> simList = documentsService.getSimilarityById(externalSFile.getId());
-            for(SimilarityParam simPar : simList) {
-//                queue.add(new Entry<>(externalSFile.getId(), simPar));
-                HashMap<Long, SimilarityParam> tmp = new HashMap<>();
-                tmp.put(externalSFile.getId(), simPar);
-                for(Entry<Long, SimilarityParam> e : tmp.entrySet()) queue.add(e);
-            }
-        }
 
         // 计算AP
         int k = 0, n = 0;
         double res = 0d;
-        for(Entry<Long, SimilarityParam> pair : queue) {
+        for(Entry<Long, SimilarityParam> pair : array) {
             n ++;
             if(markMapper.findByExternalIdAndInternalId(pair.getKey(), pair.getValue().getId())
                     .getRelevance() == 1) {
                 k ++;
+                res += k / ((double) n);
             }
-            res += ((double) k) / ((double) n);
         }
         return res / k;
     }
@@ -74,7 +73,7 @@ public class AssessServiceImpl implements AssessService {
     }
 
     private double getAPById(Long externalId) {
-        List<SimilarityParam> simList = documentsService.getSimilarityById(externalId);
+        List<SimilarityParam> simList = documentsService.getSimilarityListDesc(externalId);
         int k = 0, n = 0;
         double res = 0d;
         for(SimilarityParam similarityParam : simList) {
@@ -82,8 +81,8 @@ public class AssessServiceImpl implements AssessService {
             if(markMapper.findByExternalIdAndInternalId(externalId, similarityParam.getId())
                     .getRelevance() == 1) {
                 k ++;
+                res += (k / (double) n);
             }
-            res += k / ((double) n);
         }
         if(k == 0) return 0d;
         return res / k;
