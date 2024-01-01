@@ -83,8 +83,9 @@ public class AssessServiceImpl implements AssessService {
                     .getRelevance() == 1) {
                 k ++;
             }
-            res += ((double) k) / ((double) n);
+            res += k / ((double) n);
         }
+        if(k == 0) return 0d;
         return res / k;
     }
 
