@@ -39,4 +39,4 @@ build/
 .DS_Store
 
 #Data
-/src/main/resources/data-for-1.7.5/
+/data-for-1.7.5/
